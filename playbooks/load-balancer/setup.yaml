@@ -1,0 +1,7 @@
+---
+- name: Configuring a Load Balancer servers
+  hosts: load_balancer
+  gather_facts: true
+  become: true
+  roles:
+    - role: load-balancer-setup

@@ -1,0 +1,20 @@
+vrrp_script chk_haproxy {
+  script '/usr/local/bin/killall -0 haproxy'
+  interval 2
+}
+
+vrrp_instance haproxy-vip {
+  interface eth0
+  state {{ state }}
+  priority {{ priority }}
+
+  virtual_router_id 51
+
+  virtual_ipaddress {
+    {{ keepalived_virtual_ip }}
+  }
+
+  track_script {
+    chk_haproxy
+  }
+}

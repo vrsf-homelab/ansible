@@ -1,0 +1,18 @@
+---
+- name: Install HAProxy and keepalived
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  with_items:
+    - haproxy=2.8.5-1ubuntu3
+    - keepalived=1:2.2.8-1build2
+
+- name: Configure HAProxy
+  ansible.builtin.include_tasks:
+    file: ./haproxy.yaml
+
+- name: Configure Keepalived
+  ansible.builtin.include_tasks:
+    file: ./keepalived.yaml

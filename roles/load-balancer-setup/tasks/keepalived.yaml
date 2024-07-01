@@ -1,0 +1,29 @@
+---
+- name: Generate Keepalived MASTER configuration
+  when:
+    inventory_hostname == groups['load_balancer'][0]
+  notify: Restart Keepalived
+  vars:
+    state: MASTER
+    priority: 100
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Generate Keepalived BACKUP(S) configuration
+  when:
+    - (groups['load_balancer'] | length) > 1
+    - inventory_hostname != groups['load_balancer'][0]
+  notify: Restart Keepalived
+  vars:
+    state: BACKUP
+    priority: "{{ 100 - groups['load_balancer'].index(inventory_hostname) * 5 }}"
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: '0644'

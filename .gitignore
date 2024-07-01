@@ -1,0 +1,7 @@
+venv
+.venv
+.vscode
+.vagrant
+inventories/*.y*ml
+!inventories/*.y*ml.dist
+playbook/debug.yml

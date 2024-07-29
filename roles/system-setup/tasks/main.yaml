@@ -4,6 +4,14 @@
   ansible.builtin.apt:
     update_cache: true
 
+- name: Create symlink from /usr/bin/python3.11 to /usr/bin/python
+  when: ansible_distribution in ['Ubuntu', 'Debian']
+  ansible.builtin.file:
+    src: /usr/bin/python3.11
+    dest: /usr/bin/python
+    state: link
+    force: true
+
 - name: Install common tools
   when: ansible_distribution in ['Ubuntu', 'Debian']
   ansible.builtin.package:
@@ -11,13 +19,6 @@
       - jq
       - locales-all
       - cryptsetup
-
-- name: Install storage tools
-  when: ansible_distribution in ['Ubuntu', 'Debian']
-  ansible.builtin.package:
-    name:
-      - nfs-common
-      - open-iscsi
 
 - name: Enable IPv4 forwarding
   ansible.posix.sysctl:
@@ -27,36 +28,36 @@
     reload: true
 
 - name: Enable IPv6 forwarding
+  when: ansible_all_ipv6_addresses
   ansible.posix.sysctl:
     name: net.ipv6.conf.all.forwarding
     value: "1"
     state: present
     reload: true
-  when: ansible_all_ipv6_addresses
 
 - name: Populate service facts
   ansible.builtin.service_facts:
 
 - name: Add br_netfilter to /etc/modules-load.d/
+  when: ansible_os_family == 'RedHat'
   ansible.builtin.copy:
     content: "br_netfilter"
     dest: /etc/modules-load.d/br_netfilter.conf
     mode: "u=rw,g=,o="
-  when: (ansible_os_family == 'RedHat' or ansible_distribution == 'Archlinux')
 
 - name: Load br_netfilter
+  when: ansible_os_family == 'RedHat'
   community.general.modprobe:
     name: br_netfilter
     state: present
-  when: (ansible_os_family == 'RedHat' or ansible_distribution == 'Archlinux')
 
 - name: Set bridge-nf-call-iptables (just to be sure)
+  when: ansible_os_family == 'RedHat'
   ansible.posix.sysctl:
     name: "{{ item }}"
     value: "1"
     state: present
     reload: true
-  when: (ansible_os_family == 'RedHat' or ansible_distribution == 'Archlinux')
   loop:
     - net.bridge.bridge-nf-call-iptables
     - net.bridge.bridge-nf-call-ip6tables
@@ -96,6 +97,7 @@
     manager: auto
 
 - name: Add /usr/local/bin to sudo secure_path
+  when: ansible_os_family == 'RedHat'
   ansible.builtin.lineinfile:
     line: "Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin"
     regexp: "Defaults(\\s)*secure_path(\\s)*="
@@ -103,4 +105,15 @@
     insertafter: EOF
     path: /etc/sudoers
     validate: "visudo -cf %s"
-  when: ansible_os_family == 'RedHat'
+
+# - name: Load VRSF CA
+#   ansible.builtin.copy:
+#     src: files/ca.pem
+#     dest: /usr/local/share/ca-certificates/vrsf-in.crt
+#     mode: "u=rw,g=,o="
+
+# - name: Update certificates [Debian]
+#   when: ansible_distribution in ['Ubuntu', 'Debian']
+#   ansible.builtin.command:
+#     cmd: update-ca-certificates
+#   changed_when: false

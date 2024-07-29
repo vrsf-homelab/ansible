@@ -1,0 +1,14 @@
+---
+- name: K3s Cluster
+  hosts: k3s
+  become: true
+  roles:
+    - role: k3s
+  vars:
+    master: k3s-server-1
+    cluster_context: k8s.vrsf.in
+    api_endpoint: k8s.vrsf.in
+    k3s_version: v1.30.2+k3s2
+    token: "9G7txZTtcGewnKqK3uuWTyMmfNEWmTpQ2mKMwvxu9RAHNSdunFKf"
+    extra_server_args: ""
+    extra_agent_args: ""

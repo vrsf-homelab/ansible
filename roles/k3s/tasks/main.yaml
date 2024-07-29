@@ -1,0 +1,19 @@
+---
+- name: Install packages required by a cluster
+  when: ansible_distribution in ['Ubuntu', 'Debian']
+  ansible.builtin.package:
+    name:
+      - nfs-common
+      - open-iscsi
+
+- name: Check cluster type and role
+  when:
+    - hostvars[inventory_hostname].vars.cluster_type == "k3s"
+    - hostvars[inventory_hostname].vars.cluster_role == "server"
+  ansible.builtin.include_tasks: server.yaml
+
+- name: Check cluster type and role
+  when:
+    - hostvars[inventory_hostname].vars.cluster_type == "k3s"
+    - hostvars[inventory_hostname].vars.cluster_role == "agent"
+  ansible.builtin.include_tasks: agent.yaml

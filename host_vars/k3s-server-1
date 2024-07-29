@@ -1,0 +1,8 @@
+server_config_yaml: |
+  tls-san:
+    - k8s.vrsf.in
+    - 10.0.30.20
+  disable:
+    - servicelb
+    - traefik
+  cluster-init: true

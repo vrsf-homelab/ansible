@@ -6,8 +6,8 @@
     update_cache: true
     cache_valid_time: 3600
   with_items:
-    - haproxy=2.8.5-1ubuntu3
-    - keepalived=1:2.2.8-1build2
+    - haproxy=2.6.12-1+deb12u1
+    - keepalived=1:2.2.7-1+b2
 
 - name: Configure HAProxy
   ansible.builtin.include_tasks:

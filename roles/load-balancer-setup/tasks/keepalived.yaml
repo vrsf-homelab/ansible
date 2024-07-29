@@ -1,7 +1,7 @@
 ---
 - name: Generate Keepalived MASTER configuration
   when:
-    inventory_hostname == groups['load_balancer'][0]
+    inventory_hostname == master
   notify: Restart Keepalived
   vars:
     state: MASTER
@@ -15,8 +15,7 @@
 
 - name: Generate Keepalived BACKUP(S) configuration
   when:
-    - (groups['load_balancer'] | length) > 1
-    - inventory_hostname != groups['load_balancer'][0]
+    inventory_hostname != master
   notify: Restart Keepalived
   vars:
     state: BACKUP

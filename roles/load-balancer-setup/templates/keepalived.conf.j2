@@ -1,3 +1,5 @@
+{{ ansible_managed | comment }}
+
 vrrp_script chk_haproxy {
   script '/usr/local/bin/killall -0 haproxy'
   interval 2

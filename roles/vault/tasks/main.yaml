@@ -20,7 +20,7 @@
   ansible.builtin.include_tasks:
     file: keepalived.yaml
 
-- name: Read JSON file
+- name: Read Vault unseal tokens from file
   ansible.builtin.include_vars:
     file: "{{ role_path }}/../../ansible-remote-data/vault-init.json"
   delegate_to: localhost

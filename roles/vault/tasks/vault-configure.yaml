@@ -8,6 +8,7 @@
         owner: '{{ vault_user }}'
         group: '{{ vault_group }}'
         mode: '0755'
+
     - name: Create '{{ vault_home_dir }}' path
       ansible.builtin.file:
         path: '{{ vault_home_dir }}'

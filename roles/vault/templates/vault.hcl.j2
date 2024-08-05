@@ -19,7 +19,7 @@ storage "raft" {
   path    = "{{ vault_data_dir }}"
   node_id = "{{ ansible_hostname }}"
 
-{% for server in groups['vault'] if server != inventory_hostname %}
+{% for server in ansible_play_hosts if server != inventory_hostname %}
   retry_join {
     leader_api_addr = "https://{{ hostvars[server].ansible_host }}:8200"
   }

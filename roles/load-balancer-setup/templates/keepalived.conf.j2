@@ -10,7 +10,7 @@ vrrp_instance haproxy-vip {
   state {{ state }}
   priority {{ priority }}
 
-  virtual_router_id 51
+  virtual_router_id 20
 
   virtual_ipaddress {
     {{ keepalived_virtual_ip }}

@@ -8,3 +8,7 @@ playbook/debug.y*ml
 *.pem
 *.crt
 *.key
+
+# Ansible remote data
+ansible-remote-data/*
+!ansible-remote-data/.gitkeep

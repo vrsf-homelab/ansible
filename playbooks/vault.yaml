@@ -1,0 +1,9 @@
+---
+- name: Vault cluster
+  hosts: vault
+  become: true
+  roles:
+    - role: vault
+  vars:
+    master: core-1
+    vip_vault: 10.0.30.10/16

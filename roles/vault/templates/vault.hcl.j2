@@ -1,0 +1,27 @@
+{{ ansible_managed | comment }}
+# Full configuration options can be found at https://developer.hashicorp.com/vault/docs/configuration
+
+api_addr      = "https://{{ hostvars[inventory_hostname].ansible_host }}:8200"
+cluster_addr  = "https://{{ hostvars[inventory_hostname].ansible_host }}:8201"
+cluster_name  = "{{ vault_cluster_name }}"
+disable_mlock = true
+ui            = true
+
+listener "tcp" {
+  address         = "0.0.0.0:8200"
+  cluster_address = "0.0.0.0:8201"
+
+  tls_cert_file = "{{ vault_tls_cert_file }}"
+  tls_key_file  = "{{ vault_tls_key_file }}"
+}
+
+storage "raft" {
+  path    = "{{ vault_data_dir }}"
+  node_id = "{{ ansible_hostname }}"
+
+{% for server in groups['vault'] if server != inventory_hostname %}
+  retry_join {
+    leader_api_addr = "https://{{ hostvars[server].ansible_host }}:8200"
+  }
+{% endfor %}
+}

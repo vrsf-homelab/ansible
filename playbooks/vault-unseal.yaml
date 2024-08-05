@@ -1,0 +1,6 @@
+---
+- name: Vault cluster
+  hosts: vault
+  become: true
+  roles:
+    - role: vault-unseal

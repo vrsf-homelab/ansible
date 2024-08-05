@@ -1,0 +1,32 @@
+---
+- name: Prepare /etc/hosts
+  ansible.builtin.include_tasks:
+    file: hosts.yaml
+
+- name: Install Vault
+  ansible.builtin.include_tasks:
+    file: vault-install.yaml
+
+- name: Configure Vault
+  ansible.builtin.include_tasks:
+    file: vault-configure.yaml
+
+- name: Initialize Vault
+  when: inventory_hostname == master
+  ansible.builtin.include_tasks:
+    file: vault-initialize.yaml
+
+- name: Configure Keepalived
+  ansible.builtin.include_tasks:
+    file: keepalived.yaml
+
+- name: Read JSON file
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/../../ansible-remote-data/vault-init.json"
+  delegate_to: localhost
+
+- name: Unseal Vault nodes
+  ansible.builtin.include_role:
+    name: vault-unseal
+  vars:
+    vault_unseal_keys: "{{ unseal_keys_hex[:vault_key_threshold] }}"

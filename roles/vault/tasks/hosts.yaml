@@ -1,0 +1,12 @@
+---
+- name: Manage /etc/hosts entries for Vault servers
+  ansible.builtin.blockinfile:
+    path: /etc/hosts
+    block: |
+      {% for server in groups['vault'] %}
+      {% set host = hostvars[server].ansible_host %}
+      {{ host }} {{ server | replace('core', 'vault') }}.vrsf.in
+      {% endfor %}
+    marker_begin: /begin Vault hosts
+    marker_end: /end Vault hosts
+    insertbefore: EOF

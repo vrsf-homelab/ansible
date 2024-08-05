@@ -1,0 +1,47 @@
+---
+- name: Gathering vault status
+  environment:
+    VAULT_ADDR: 'https://{{ hostvars[inventory_hostname].ansible_host }}:8200'
+  ansible.builtin.command: 'vault status -format=json'
+  register: vault_status_raw
+  failed_when: vault_status_raw.rc != 2
+  changed_when: false
+
+- name: Parse 'vault status' output
+  ansible.builtin.set_fact:
+    vault_status: '{{ vault_status_raw.stdout | from_json }}'
+
+- name: Initialize Vault
+  when: vault_status.initialized is false
+  environment:
+    VAULT_ADDR: 'https://{{ hostvars[inventory_hostname].ansible_host }}:8200'
+  ansible.builtin.command: 'vault operator init -key-shares={{ vault_key_shares }} -key-threshold={{ vault_key_threshold }} -format json'
+  register: vault_init_raw
+  changed_when: false
+
+- name: Parse 'vault operator init' output
+  when: vault_status.initialized is false
+  ansible.builtin.set_fact:
+    vault_init: '{{ vault_init_raw.stdout | from_json }}'
+
+## TODO: Save it in better place instead of playing with files!
+- name: Save vault init output locally
+  when: vault_status.initialized is false
+  delegate_to: localhost
+  become: false
+  ansible.builtin.copy:
+    content: "{{ vault_init_raw.stdout | from_json | to_nice_json }}"
+    dest: "{{ role_path }}/../../ansible-remote-data/vault-init.json"
+    mode: '0600'
+
+- name: Unseal Vault first node
+  when:
+    - vault_status.initialized is false
+  ansible.builtin.include_role:
+    name: vault-unseal
+  vars:
+    vault_unseal_keys: "{{ vault_init.unseal_keys_hex[:vault_key_threshold] }}"
+
+- name: Wait for first node to be ready
+  ansible.builtin.pause:
+    seconds: 10

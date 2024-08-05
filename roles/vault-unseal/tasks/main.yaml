@@ -1,0 +1,21 @@
+---
+- name: Get Vault status
+  environment:
+    VAULT_ADDR: 'https://{{ hostvars[inventory_hostname].ansible_host }}:8200'
+  ansible.builtin.command: 'vault status -format=json'
+  register: vault_status_raw
+  failed_when: vault_status_raw.rc != 2
+  ignore_errors: true
+  changed_when: false
+
+- name: Parse 'vault status' output
+  ansible.builtin.set_fact:
+    vault_status: '{{ vault_status_raw.stdout | from_json }}'
+
+- name: Unseal Vault node
+  when: vault_status.sealed is true
+  ansible.builtin.command: "vault operator unseal --format json {{ item }}"
+  environment:
+    VAULT_ADDR: 'https://{{ hostvars[inventory_hostname].ansible_host }}:8200'
+  with_items: "{{ vault_unseal_keys[: vault_status.t] }}"
+  changed_when: false

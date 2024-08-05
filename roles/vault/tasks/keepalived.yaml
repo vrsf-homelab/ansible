@@ -1,0 +1,67 @@
+---
+- name: Prepare Keepalived
+  block:
+    - name: Install Keepalived
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+      with_items:
+        - keepalived={{ vault_keepalived_version }}
+
+    - name: Prepare base configuration
+      ansible.builtin.template:
+        src: keepalived.conf.j2
+        dest: /etc/keepalived/keepalived.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Create 'conf.d/' directory
+      ansible.builtin.file:
+        path: /etc/keepalived/conf.d
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+        recurse: true
+
+- name: Generate configurations
+  block:
+    - name: Generate Keepalived MASTER configuration
+      when:
+        inventory_hostname == master
+      vars:
+        state: MASTER
+        priority: 100
+      ansible.builtin.template:
+        src: keepalived-vault.conf.j2
+        dest: /etc/keepalived/conf.d/vault.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Generate Keepalived BACKUP(s) configuration
+      when:
+        - (groups['vault'] | length) > 1
+        - inventory_hostname != master
+      vars:
+        state: BACKUP
+        priority: "{{ 100 - groups['vault'].index(inventory_hostname) * 10 }}"
+      ansible.builtin.template:
+        src: keepalived-vault.conf.j2
+        dest: /etc/keepalived/conf.d/vault.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+- name: Copy vault-health.sh file
+  ansible.builtin.copy:
+    src: files/vault-health.sh
+    dest: /usr/local/bin/vault-health
+    owner: root
+    group: root
+    mode: '0755'
+  notify:
+    - Restart Keepalived

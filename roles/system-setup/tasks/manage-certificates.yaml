@@ -1,0 +1,12 @@
+---
+- name: Load VRS-Factory CA
+  ansible.builtin.copy:
+    src: files/VRS-Factory_CA.crt
+    dest: /usr/local/share/ca-certificates/VRS-Factory_CA.crt
+    mode: "u=rw,g=,o="
+
+- name: Update certificates [Debian]
+  when: ansible_distribution in ['Ubuntu', 'Debian']
+  ansible.builtin.command:
+    cmd: update-ca-certificates --fresh
+  changed_when: false

@@ -1,0 +1,13 @@
+---
+- name: Update APT cache
+  when: ansible_distribution in ['Ubuntu', 'Debian']
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install common tools
+  when: ansible_distribution in ['Ubuntu', 'Debian']
+  ansible.builtin.package:
+    name:
+      - jq
+      - locales-all
+      - cryptsetup

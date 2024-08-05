@@ -1,119 +1,16 @@
 ---
-- name: Update APT cache
-  when: ansible_distribution in ['Ubuntu', 'Debian']
-  ansible.builtin.apt:
-    update_cache: true
+- name: Manage APT
+  ansible.builtin.include_tasks:
+    file: manage-apt.yaml
 
-- name: Create symlink from /usr/bin/python3.11 to /usr/bin/python
-  when: ansible_distribution in ['Ubuntu', 'Debian']
-  ansible.builtin.file:
-    src: /usr/bin/python3.11
-    dest: /usr/bin/python
-    state: link
-    force: true
+- name: Configure network
+  ansible.builtin.include_tasks:
+    file: configure-network.yaml
 
-- name: Install common tools
-  when: ansible_distribution in ['Ubuntu', 'Debian']
-  ansible.builtin.package:
-    name:
-      - jq
-      - locales-all
-      - cryptsetup
+- name: Secure system
+  ansible.builtin.include_tasks:
+    file: manage-security.yaml
 
-- name: Enable IPv4 forwarding
-  ansible.posix.sysctl:
-    name: net.ipv4.ip_forward
-    value: "1"
-    state: present
-    reload: true
-
-- name: Enable IPv6 forwarding
-  when: ansible_all_ipv6_addresses
-  ansible.posix.sysctl:
-    name: net.ipv6.conf.all.forwarding
-    value: "1"
-    state: present
-    reload: true
-
-- name: Populate service facts
-  ansible.builtin.service_facts:
-
-- name: Add br_netfilter to /etc/modules-load.d/
-  when: ansible_os_family == 'RedHat'
-  ansible.builtin.copy:
-    content: "br_netfilter"
-    dest: /etc/modules-load.d/br_netfilter.conf
-    mode: "u=rw,g=,o="
-
-- name: Load br_netfilter
-  when: ansible_os_family == 'RedHat'
-  community.general.modprobe:
-    name: br_netfilter
-    state: present
-
-- name: Set bridge-nf-call-iptables (just to be sure)
-  when: ansible_os_family == 'RedHat'
-  ansible.posix.sysctl:
-    name: "{{ item }}"
-    value: "1"
-    state: present
-    reload: true
-  loop:
-    - net.bridge.bridge-nf-call-iptables
-    - net.bridge.bridge-nf-call-ip6tables
-
-- name: Check for Apparmor existence
-  ansible.builtin.stat:
-    path: /sys/module/apparmor/parameters/enabled
-  register: apparmor_enabled
-
-- name: Check if Apparmor is enabled
-  when: apparmor_enabled.stat.exists
-  ansible.builtin.command: cat /sys/module/apparmor/parameters/enabled
-  register: apparmor_status
-  changed_when: false
-
-- name: Install Apparmor Parser [Suse]
-  when:
-    - ansible_os_family == 'Suse'
-    - apparmor_status is defined
-    - apparmor_status.stdout == "Y"
-  ansible.builtin.package:
-    name: apparmor-parser
-    state: present
-
-- name: Install Apparmor Parser [Debian]
-  when:
-    - ansible_distribution == 'Debian'
-    - ansible_facts['distribution_major_version'] == "11"
-    - apparmor_status is defined
-    - apparmor_status.stdout == "Y"
-  ansible.builtin.package:
-    name: apparmor
-    state: present
-
-- name: Gather the package facts
-  ansible.builtin.package_facts:
-    manager: auto
-
-- name: Add /usr/local/bin to sudo secure_path
-  when: ansible_os_family == 'RedHat'
-  ansible.builtin.lineinfile:
-    line: "Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin"
-    regexp: "Defaults(\\s)*secure_path(\\s)*="
-    state: present
-    insertafter: EOF
-    path: /etc/sudoers
-    validate: "visudo -cf %s"
-
-# - name: Load VRSF CA
-#   ansible.builtin.copy:
-#     src: files/ca.pem
-#     dest: /usr/local/share/ca-certificates/vrsf-in.crt
-#     mode: "u=rw,g=,o="
-
-# - name: Update certificates [Debian]
-#   when: ansible_distribution in ['Ubuntu', 'Debian']
-#   ansible.builtin.command:
-#     cmd: update-ca-certificates
-#   changed_when: false
+- name: Manage certificates
+  ansible.builtin.include_tasks:
+    file: manage-certificates.yaml

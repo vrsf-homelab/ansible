@@ -19,6 +19,13 @@ vault_cluster_name: vault
 vault_key_shares: 3
 vault_key_threshold: 2
 
+# GCP Seal
+vault_gcp_sealed: false
+vault_gcp_project_id: ''
+vault_gcp_location: europe-central2
+vault_gcp_key_ring: ''
+vault_gcp_crypto_key: ''
+
 # TLS
 vault_tls_cert_file: /opt/vault/tls/tls.crt
 vault_tls_key_file: /opt/vault/tls/tls.key

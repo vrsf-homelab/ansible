@@ -25,3 +25,12 @@ storage "raft" {
   }
 {% endfor %}
 }
+
+{% if vault_gcp_sealed %}
+seal "gcpckms" {
+  project     = "{{ vault_gcp_project_id }}"
+  region      = "{{ vault_gcp_location }}"
+  key_ring    = "{{ vault_gcp_key_ring }}"
+  crypto_key  = "{{ vault_gcp_crypto_key }}"
+}
+{% endif %}

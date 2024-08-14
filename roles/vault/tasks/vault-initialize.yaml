@@ -11,11 +11,23 @@
   ansible.builtin.set_fact:
     vault_status: '{{ vault_status_raw.stdout | from_json }}'
 
-- name: Initialize Vault
-  when: vault_status.initialized is false
+- name: Initialize locally sealed Vault
+  when:
+    - vault_status.initialized is false
+    - vault_gcp_sealed is false
   environment:
     VAULT_ADDR: 'https://{{ hostvars[inventory_hostname].ansible_host }}:8200'
   ansible.builtin.command: 'vault operator init -key-shares={{ vault_key_shares }} -key-threshold={{ vault_key_threshold }} -format json'
+  register: vault_init_raw
+  changed_when: false
+
+- name: Initialize GCP sealed Vault
+  when:
+    - vault_status.initialized is false
+    - vault_gcp_sealed is true
+  environment:
+    VAULT_ADDR: 'https://{{ hostvars[inventory_hostname].ansible_host }}:8200'
+  ansible.builtin.command: 'vault operator init -format json'
   register: vault_init_raw
   changed_when: false
 
@@ -37,11 +49,14 @@
 - name: Unseal Vault first node
   when:
     - vault_status.initialized is false
+    - vault_gcp_sealed is false
   ansible.builtin.include_role:
     name: vault-unseal
   vars:
     vault_unseal_keys: "{{ vault_init.unseal_keys_hex[:vault_key_threshold] }}"
 
 - name: Wait for first node to be ready
+  when:
+    - vault_gcp_sealed is false
   ansible.builtin.pause:
     seconds: 10

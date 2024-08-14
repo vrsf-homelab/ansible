@@ -21,11 +21,15 @@
     file: keepalived.yaml
 
 - name: Read Vault unseal tokens from file
+  when:
+    - vault_gcp_sealed is false
   ansible.builtin.include_vars:
     file: "{{ role_path }}/../../ansible-remote-data/vault-init.json"
   delegate_to: localhost
 
 - name: Unseal Vault nodes
+  when:
+    - vault_gcp_sealed is false
   ansible.builtin.include_role:
     name: vault-unseal
   vars:

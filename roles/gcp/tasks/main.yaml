@@ -1,0 +1,43 @@
+---
+- name: Install gcloud
+  block:
+    - name: Download installer
+      ansible.builtin.get_url:
+        url: https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-{{ gcp_gcloud_version }}-linux-x86_64.tar.gz
+        dest: /tmp/google-cloud-sdk-{{ gcp_gcloud_version }}.tar.gz
+        mode: '0644'
+
+    - name: Extract installer
+      ansible.builtin.unarchive:
+        src: /tmp/google-cloud-sdk-{{ gcp_gcloud_version }}.tar.gz
+        dest: /opt
+        remote_src: true
+
+    - name: Run installer
+      changed_when: false
+      ansible.builtin.command: /opt/google-cloud-sdk/install.sh --quiet --path-update true
+
+- name: Prepare credentials
+  when: inventory_hostname in groups['core']
+  block:
+    - name: Prepare /etc/gcp directory
+      ansible.builtin.file:
+        path: '/etc/gcp'
+        state: directory
+        mode: '0755'
+
+    # TODO: Think about a single group for GCP to set 0400 permissions
+    - name: Copy credentials file
+      ansible.builtin.copy:
+        src: core-sa-credentials.json
+        dest: /etc/gcp/credentials.json
+        mode: '0444'
+
+- name: Prepare environment variables
+  ansible.builtin.blockinfile:
+    path: /etc/environment
+    block: |
+      GOOGLE_APPLICATION_CREDENTIALS=/etc/gcp/credentials.json
+    marker_begin: /begin GCP
+    marker_end: /end GCP
+    insertbefore: EOF

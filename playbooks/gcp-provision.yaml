@@ -1,0 +1,9 @@
+---
+- name: Provisioning servers for GCP usage
+  hosts: core
+  gather_facts: true
+  become: true
+  roles:
+    - role: gcp
+  vars:
+    gcp_project_id: vrsf-homelab-c5bd990e

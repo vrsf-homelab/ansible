@@ -4,8 +4,8 @@
     VAULT_ADDR: 'https://{{ hostvars[inventory_hostname].ansible_host }}:8200'
   ansible.builtin.command: 'vault status -format=json'
   register: vault_status_raw
-  failed_when: vault_status_raw.rc != 2
-  ignore_errors: true
+  # failed_when: vault_status_raw.rc != 2
+  # ignore_errors: true
   changed_when: false
 
 - name: Parse 'vault status' output

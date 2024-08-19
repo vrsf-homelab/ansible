@@ -7,3 +7,4 @@
   vars:
     master: core-1
     vip_vault: 10.0.30.10/16
+    vault_gcp_sealed: true

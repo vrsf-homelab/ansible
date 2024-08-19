@@ -1,0 +1,6 @@
+---
+- name: Vault Snapshot Agent
+  hosts: vault
+  become: true
+  roles:
+    - role: vault-snapshot-agent

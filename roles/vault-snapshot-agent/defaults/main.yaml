@@ -1,0 +1,12 @@
+---
+# Vault settings
+vault_snapshot_agent_config_dir: /etc/vault.d
+vault_snapshot_agent_role_id: abc123
+vault_snapshot_agent_secret_id: abc123
+vault_snapshot_agent_approle: approle
+
+# Vault snapshots temp
+vault_snapshot_agent_tmp: /tmp/vault-snapshots
+
+# Local storage configuration
+vault_snapshot_agent_storage_local_path: /opt/vault/snapshots

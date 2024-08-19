@@ -1,0 +1,10 @@
+{{ ansible_managed | comment }}
+
+vault:
+  addr: "https://{{ hostvars[inventory_hostname].ansible_host }}:8200"
+  roleId: "{{ vault_snapshot_agent_role_id }}"
+  secretId: "{{ vault_snapshot_agent_secret_id }}"
+  approle: "{{ vault_snapshot_agent_approle }}"
+storage:
+  local:
+    path: "{{ vault_snapshot_agent_storage_local_path }}"

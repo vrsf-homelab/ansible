@@ -1,0 +1,18 @@
+---
+- name: Prepare directories
+  block:
+    - name: Create path '{{ vault_snapshot_agent_config_dir }}'
+      ansible.builtin.file:
+        path: '{{ vault_snapshot_agent_config_dir }}'
+        state: directory
+        owner: 'vault'
+        group: 'vault'
+        mode: '0755'
+
+- name: Prepare Vault Snapshot Agent configuration
+  ansible.builtin.template:
+    src: vault-snapshot-agent.yaml.j2
+    dest: '{{ vault_snapshot_agent_config_dir }}/vault-snapshot-agent.yaml'
+    owner: 'vault'  # More vars?
+    group: 'vault'  # More vars?
+    mode: '0644'

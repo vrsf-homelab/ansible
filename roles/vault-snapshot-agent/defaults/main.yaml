@@ -1,9 +1,14 @@
 ---
 # Vault settings
+vault_snapshot_agent_version: "0.1.0"
 vault_snapshot_agent_config_dir: /etc/vault.d
 vault_snapshot_agent_role_id: abc123
 vault_snapshot_agent_secret_id: abc123
 vault_snapshot_agent_approle: approle
+
+# Owner & group (should be the same as for vault)
+vault_snapshot_agent_owner: vault
+vault_snapshot_agent_group: vault
 
 # Vault snapshots temp
 vault_snapshot_agent_tmp: /tmp/vault-snapshots

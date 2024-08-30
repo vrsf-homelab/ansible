@@ -1,0 +1,17 @@
+---
+- name: Download binary
+  ansible.builtin.get_url:
+    url: >
+      https://github.com/vertisan/vault-snapshot-agent/releases/download/{{ vault_snapshot_agent_version }}/vault-snapshot-agent_{{ vault_snapshot_agent_version }}_linux_amd64.tar.gz
+    dest: "/tmp/vault-snapshot-agent_{{ vault_snapshot_agent_version }}_linux_amd64.tar.gz"
+    mode: '0700'
+    checksum: "sha256:https://github.com/vertisan/vault-snapshot-agent/releases/download/{{ vault_snapshot_agent_version }}/checksums.txt"
+
+- name: Unpack Vault Snapshot Agent binary
+  ansible.builtin.unarchive:
+    src: "/tmp/vault-snapshot-agent_{{ vault_snapshot_agent_version }}_linux_amd64.tar.gz"
+    dest: "/usr/bin/"
+    remote_src: true
+    owner: '{{ vault_snapshot_agent_owner }}'
+    group: '{{ vault_snapshot_agent_group }}'
+    mode: '0700'

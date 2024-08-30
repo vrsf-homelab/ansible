@@ -40,7 +40,7 @@ pveum user token add $PVE_USERNAME@pve $PVE_TOKEN_NAME --privsep 0
 ### Vault sealed by GCP
 
 ```shell
-ap playbooks/vault.yaml --extra-vars '{"vault_gcp_project_id": "XXX","vault_gcp_location": "europe-central2","vault_gcp_key_ring": "XXX","vault_gcp_crypto_key": "XXX"}'
+ap playbooks/vault.yaml --extra-vars '{"vault_gcp_project_id": "XXX","vault_gcp_location": "europe-central2","vault_gcp_key_ring": "XXX","vault_gcp_crypto_key": "XXX","vault_snapshot_agent_storage_local_path": "/mnt/vault-snapshots"}'
 ```
 
 ### Vault Unseal

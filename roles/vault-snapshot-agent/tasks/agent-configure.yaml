@@ -1,0 +1,24 @@
+---
+- name: Prepare configuration
+  ansible.builtin.template:
+    src: vault-snapshot-agent.yaml.j2
+    dest: '{{ vault_snapshot_agent_config_dir }}/vault-snapshot-agent.yaml'
+    owner: '{{ vault_snapshot_agent_owner }}'
+    group: '{{ vault_snapshot_agent_group }}'
+    mode: '0644'
+
+- name: Prepare service
+  ansible.builtin.template:
+    src: vault-snapshot-agent.service.j2
+    dest: /lib/systemd/system/vault-snapshot-agent.service
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: Prepare timer
+  ansible.builtin.template:
+    src: vault-snapshot-agent.timer.j2
+    dest: /lib/systemd/system/vault-snapshot-agent.timer
+    owner: 'root'
+    group: 'root'
+    mode: '0644'

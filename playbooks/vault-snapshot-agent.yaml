@@ -1,0 +1,8 @@
+---
+- name: Vault Snapshot Agent
+  hosts: vault
+  become: true
+  roles:
+    - role: vault-snapshot-agent
+  vars:
+    vault_snapshot_agent_version: "0.1.1"

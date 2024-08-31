@@ -37,14 +37,20 @@ pveum user token add $PVE_USERNAME@pve $PVE_TOKEN_NAME --privsep 0
 
 ## Roles
 
-### Vault sealed by GCP
+### Vault auto-unseal by GCP
 
 ```shell
 ap playbooks/vault.yaml --extra-vars '{"vault_gcp_project_id": "XXX","vault_gcp_location": "europe-central2","vault_gcp_key_ring": "XXX","vault_gcp_crypto_key": "XXX"}'
 ```
 
-### Vault Unseal
+### Vault Unseal (local Raft only)
 
 ```shell
 ap playbooks/vault-unseal.yaml --extra-vars "$(cat ansible-remote-data/vault-init.json | jq '. | {vault_unseal_keys: .unseal_keys_hex}')"
+```
+
+### Vault Snapshot Agent
+
+```shell
+ap playbooks/vault-snapshot-agent.yaml --extra-vars '{"vault_snapshot_agent_role_id": "XXX","vault_snapshot_agent_secret_id": "XXX","vault_snapshot_agent_storage_local_path": "/mnt/vault-snapshots"}'
 ```

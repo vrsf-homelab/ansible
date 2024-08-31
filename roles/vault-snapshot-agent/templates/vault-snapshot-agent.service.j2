@@ -1,0 +1,11 @@
+# /etc/systemd/system/vault-snapshot-agent.service
+[Unit]
+Description=Vault Snapshot Agent
+
+[Service]
+ExecStart=/usr/bin/vault-snapshot-agent
+User={{ vault_snapshot_agent_owner }}
+Group={{ vault_snapshot_agent_group }}
+ProtectSystem=full
+ProtectHome=read-only
+NoNewPrivileges=yes

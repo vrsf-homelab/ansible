@@ -1,0 +1,7 @@
+---
+- name: Restart Vault Snapshot Agent
+  ansible.builtin.systemd_service:
+    name: vault-snapshot-agent.timer
+    state: restarted
+    enabled: true
+    daemon_reload: true

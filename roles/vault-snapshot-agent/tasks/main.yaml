@@ -1,0 +1,37 @@
+---
+- name: Prepare directories
+  block:
+    - name: Create config directory at '{{ vault_snapshot_agent_config_dir }}'
+      ansible.builtin.file:
+        path: '{{ vault_snapshot_agent_config_dir }}'
+        state: directory
+        owner: '{{ vault_snapshot_agent_owner }}'
+        group: '{{ vault_snapshot_agent_group }}'
+        mode: '0755'
+
+    - name: Create snapshots directory at '{{ vault_snapshot_agent_storage_local_path }}'
+      when: vault_snapshot_agent_storage_local_path != ""
+      ansible.builtin.file:
+        path: '{{ vault_snapshot_agent_storage_local_path }}'
+        state: directory
+        owner: '{{ vault_snapshot_agent_owner }}'
+        group: '{{ vault_snapshot_agent_group }}'
+        mode: '0755'
+
+    - name: Mount NFS for snapshots
+      when: vault_snapshot_agent_storage_local_path != ""
+      ansible.posix.mount:
+        # TODO: Migrate somewhere else?
+        src: "10.0.20.30:/volume1/homelab/vault-snapshots"
+        path: "{{ vault_snapshot_agent_storage_local_path }}"
+        fstype: nfs
+        opts: "rw,sync"
+        state: mounted
+
+- name: Install Vault Snapshot Agent
+  ansible.builtin.include_tasks:
+    file: agent-install.yaml
+
+- name: Configure Vault Snapshot Agent
+  ansible.builtin.include_tasks:
+    file: agent-configure.yaml

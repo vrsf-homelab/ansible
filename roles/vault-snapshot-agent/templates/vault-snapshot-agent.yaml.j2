@@ -6,5 +6,6 @@ vault:
   secretId: "{{ vault_snapshot_agent_secret_id }}"
   approle: "{{ vault_snapshot_agent_approle }}"
 storage:
+  retention: {{ 5 * 24 }} # Keep snapshots from the last 5 days
   local:
     path: "{{ vault_snapshot_agent_storage_local_path }}"

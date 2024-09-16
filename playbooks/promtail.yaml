@@ -1,0 +1,27 @@
+---
+- name: Installing Promtail on all VMs
+  hosts: core
+  gather_facts: true
+  become: true
+  roles:
+    - role: promtail
+  vars:
+    promtail_version: "3.1.1"
+    promtail_clients:
+      - url: https://loki-gw.vrsf.in/loki/api/v1/push
+    promtail_scrape_configs:
+      - job_name: journal
+        journal:
+          json: false
+          max_age: 12h
+          path: /var/log/journal
+          matches: _SYSTEMD_UNIT=vault-snapshot-agent.service
+          labels:
+            job: systemd-journal
+        relabel_configs:
+          - source_labels: ['__journal__systemd_unit']
+            target_label: 'unit'
+          - source_labels: ['__journal__hostname']
+            target_label: 'hostname'
+          - source_labels: ['__journal_priority_keyword']
+            target_label: level

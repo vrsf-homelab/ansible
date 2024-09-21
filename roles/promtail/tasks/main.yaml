@@ -1,0 +1,4 @@
+---
+- name: Include 'promtail' role
+  ansible.builtin.include_role:
+    name: grafana.grafana.promtail

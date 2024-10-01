@@ -16,5 +16,5 @@
       --kube-controller-manager-arg \"node-monitor-grace-period=16s\"
       --kube-apiserver-arg \"default-not-ready-toleration-seconds=20\"
       --kube-apiserver-arg \"default-unreachable-toleration-seconds=20\"
-      --node-label \"node.kubernetes.io/proxmox-node={{ hostvars[inventory_hostname].vars.node_name }}\""
-    extra_agent_args: "--node-label \"node.kubernetes.io/proxmox-node={{ hostvars[inventory_hostname].vars.node_name }}\""
+      --node-label \"topology.kubernetes.io/zone={{ hostvars[inventory_hostname].vars.node_name }}\""
+    extra_agent_args: "--node-label \"topology.kubernetes.io/zone={{ hostvars[inventory_hostname].vars.node_name }}\""

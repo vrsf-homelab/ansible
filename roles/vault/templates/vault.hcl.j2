@@ -1,8 +1,8 @@
 {{ ansible_managed | comment }}
 # Full configuration options can be found at https://developer.hashicorp.com/vault/docs/configuration
 
-api_addr      = "https://{{ hostvars[inventory_hostname].ansible_host }}:8200"
-cluster_addr  = "https://{{ hostvars[inventory_hostname].ansible_host }}:8201"
+api_addr      = "https://{{ dns_map[inventory_hostname] }}:8200"
+cluster_addr  = "https://{{ dns_map[inventory_hostname] }}:8201"
 cluster_name  = "{{ vault_cluster_name }}"
 disable_mlock = true
 ui            = true
@@ -21,7 +21,7 @@ storage "raft" {
 
 {% for server in ansible_play_hosts if server != inventory_hostname %}
   retry_join {
-    leader_api_addr = "https://{{ hostvars[server].ansible_host }}:8200"
+    leader_api_addr = "https://{{ dns_map[server] }}:8200"
   }
 {% endfor %}
 }

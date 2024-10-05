@@ -8,3 +8,7 @@
     master: core-1
     vip_vault: 10.0.30.10/16
     vault_gcp_sealed: true
+    dns_map:
+      core-1: "n1.vlt.vrsf.in"
+      core-2: "n2.vlt.vrsf.in"
+      core-3: "n3.vlt.vrsf.in"

@@ -1,0 +1,2 @@
+files/*
+!files/vault-health.sh

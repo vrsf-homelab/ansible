@@ -29,7 +29,7 @@
   block:
     - name: Copy TLS certificate
       ansible.builtin.copy:
-        src: files/tls.crt
+        src: files/vlt.vrsf.in.crt
         dest: '{{ vault_tls_cert_file }}'
         owner: '{{ vault_user }}'
         group: '{{ vault_group }}'
@@ -37,7 +37,7 @@
 
     - name: Copy TLS key
       ansible.builtin.copy:
-        src: files/tls.key
+        src: files/vlt.vrsf.in.key
         dest: '{{ vault_tls_key_file }}'
         owner: '{{ vault_user }}'
         group: '{{ vault_group }}'

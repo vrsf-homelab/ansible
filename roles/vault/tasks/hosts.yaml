@@ -5,8 +5,6 @@
     block: |
       {% for server in groups['vault'] %}
       {% set host = hostvars[server].ansible_host %}
-      {{ host }} {{ server | replace('core', 'vault') }}.vrsf.in
+      {{ host }} {{ dns_map[server] }}
       {% endfor %}
-    marker_begin: /begin Vault hosts
-    marker_end: /end Vault hosts
     insertbefore: EOF

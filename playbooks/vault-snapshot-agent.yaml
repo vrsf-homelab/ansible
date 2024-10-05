@@ -6,3 +6,7 @@
     - role: vault-snapshot-agent
   vars:
     vault_snapshot_agent_version: "0.2.0"
+    dns_map:
+      core-1: "n1.vlt.vrsf.in"
+      core-2: "n2.vlt.vrsf.in"
+      core-3: "n3.vlt.vrsf.in"

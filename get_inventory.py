@@ -5,7 +5,7 @@ import json
 import os
 from proxmoxer import ProxmoxAPI
 
-def get_nodes(node_name, user, token_name, token_value):
+def get_nodes(node_name: str, user: str, token_name: str, token_value: str) -> list:
   pve = ProxmoxAPI(host=node_name, user=f"{user}@pve", token_name=token_name, token_value=token_value)
 
   cluster_nodes = pve.nodes.get()
@@ -27,12 +27,17 @@ def get_nodes(node_name, user, token_name, token_value):
         # Extract IP from configuration (it cannot be IP from status due to keepalived's vip)
         vm['ip'] = vm_config['ipconfig0'].split(',')[0].split('=')[1].split('/')[0]
 
+        # Save a node name for K8s labeling
+        vm['meta'] = {
+          'node_name': node_name
+        }
+
         vms.append(vm)
 
   return vms
 
 
-def define_vars_on_tags(tags):
+def define_vars_on_tags(tags) -> (dict[str, str] | dict):
   if 'k3s_server' in tags:
     return {
       'cluster_type': 'k3s',
@@ -54,7 +59,7 @@ def define_vars_on_tags(tags):
   return {}
 
 
-def get_inventory():
+def get_inventory() -> dict[str, dict[str, dict]]:
   nodes = get_nodes(
     os.getenv('ANSIBLE_PROXMOX_HOST'),
     os.getenv('ANSIBLE_PROXMOX_USER'),
@@ -78,12 +83,12 @@ def get_inventory():
         'ansible_port': '22',
         'ansible_user': 'vertisan',
         'ansible_python_interpreter': '/usr/bin/python3',
-        'vars': define_vars_on_tags(tags)
+        'vars': {**define_vars_on_tags(tags), **node['meta']}
       }
 
   return inventory
 
-def main():
+def main() -> None:
   if len(sys.argv) == 2 and (sys.argv[1] == '--list'):
     inventory = get_inventory()
     print(json.dumps(inventory, indent=2))

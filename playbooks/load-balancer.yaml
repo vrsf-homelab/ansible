@@ -7,4 +7,18 @@
     - role: load-balancer-setup
   vars:
     master: load-balancer-1
-    keepalived_virtual_ip: 10.0.30.20/16
+    instances:
+      # - name: vault
+      #   ip: 10.0.30.10/16
+      #   healthcheck:
+      #     script: "/usr/local/bin/vault-health https://localhost:8200/v1/sys/health"
+      #     interval: 2
+      #   backend: null
+      - name: kubernetes
+        ip: 10.0.30.20/16
+        healthcheck:
+          script: "/usr/local/bin/killall -0 haproxy"
+          interval: 2
+        backend:
+          port: 6443
+          hosts: "{{ groups['k3s_server'] }}"

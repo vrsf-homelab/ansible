@@ -1,11 +1,14 @@
 ---
-- name: Generate Keepalived MASTER configuration
-  when:
-    inventory_hostname == master
-  notify: Restart Keepalived
-  vars:
-    state: MASTER
-    priority: 100
+- name: Create 'conf.d/' directory
+  ansible.builtin.file:
+    path: /etc/keepalived/conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+    recurse: true
+
+- name: Prepare base configuration
   ansible.builtin.template:
     src: keepalived.conf.j2
     dest: /etc/keepalived/keepalived.conf
@@ -13,16 +16,49 @@
     group: root
     mode: '0644'
 
-- name: Generate Keepalived BACKUP(S) configuration
+- name: Copy healthcheckers
+  ansible.builtin.copy:
+    src: files/healthcheck-*.sh
+    dest: /usr/local/bin/
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Generate Keepalived MASTER configuration
   when:
-    inventory_hostname != master
-  notify: Restart Keepalived
+    inventory_hostname == master
+  loop: "{{ instances }}"
+  loop_control:
+    index_var: index
   vars:
-    state: BACKUP
-    priority: "{{ 100 - groups['load_balancer'].index(inventory_hostname) * 5 }}"
+    state: MASTER
+    priority: 100
+    instance: "{{ item }}"
+    router_id: "{{ index + 10 }}"
   ansible.builtin.template:
-    src: keepalived.conf.j2
-    dest: /etc/keepalived/keepalived.conf
+    src: keepalived-instance.conf.j2
+    dest: "/etc/keepalived/conf.d/keepalived-{{ item.name }}.conf"
     owner: root
     group: root
     mode: '0644'
+
+- name: Generate Keepalived BACKUP(S) configuration
+  when:
+    inventory_hostname != master
+  loop: "{{ instances }}"
+  loop_control:
+    index_var: index
+  vars:
+    state: BACKUP
+    priority: "{{ 100 - groups['load_balancer'].index(inventory_hostname) * 5 }}"
+    instance: "{{ item }}"
+    router_id: "{{ index + 10 }}"
+  ansible.builtin.template:
+    src: keepalived-instance.conf.j2
+    dest: "/etc/keepalived/conf.d/keepalived-{{ item.name }}.conf"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Restart Keepalived
+  notify: Restart Keepalived

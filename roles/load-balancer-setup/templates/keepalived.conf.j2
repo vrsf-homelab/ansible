@@ -1,22 +1,9 @@
 {{ ansible_managed | comment }}
+# Main configuration file: keepalived.conf
+# Pass here any "generic" configuration only :}
 
-vrrp_script chk_haproxy {
-  script '/usr/local/bin/killall -0 haproxy'
-  interval 2
+global_defs {
+  router_id LVS_LB
 }
 
-vrrp_instance haproxy-vip {
-  interface eth0
-  state {{ state }}
-  priority {{ priority }}
-
-  virtual_router_id 20
-
-  virtual_ipaddress {
-    {{ keepalived_virtual_ip }}
-  }
-
-  track_script {
-    chk_haproxy
-  }
-}
+include /etc/keepalived/conf.d/*.conf

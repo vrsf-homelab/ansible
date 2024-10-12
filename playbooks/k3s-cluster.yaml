@@ -1,20 +1,21 @@
 ---
 - name: K3s Cluster
-  hosts: k3s
+  hosts: k3s_agent
   become: true
   roles:
     - role: k3s
   vars:
-    master: k3s-server-1
+    master: k3s-server-2
     cluster_context: k8s.vrsf.in
     api_endpoint: k8s.vrsf.in
     k3s_version: v1.30.2+k3s2
     token: "9G7txZTtcGewnKqK3uuWTyMmfNEWmTpQ2mKMwvxu9RAHNSdunFKf"
     extra_server_args: >
-      "--kubelet-arg \"node-status-update-frequency=4s\"
-      --kube-controller-manager-arg \"node-monitor-period=4s\"
-      --kube-controller-manager-arg \"node-monitor-grace-period=16s\"
-      --kube-apiserver-arg \"default-not-ready-toleration-seconds=20\"
-      --kube-apiserver-arg \"default-unreachable-toleration-seconds=20\"
-      --node-label \"topology.kubernetes.io/zone={{ hostvars[inventory_hostname].vars.node_name }}\""
-    extra_agent_args: "--node-label \"topology.kubernetes.io/zone={{ hostvars[inventory_hostname].vars.node_name }}\""
+      --kubelet-arg "node-status-update-frequency=4s"
+      --kube-controller-manager-arg "node-monitor-period=4s"
+      --kube-controller-manager-arg "node-monitor-grace-period=16s"
+      --kube-apiserver-arg "default-not-ready-toleration-seconds=20"
+      --kube-apiserver-arg "default-unreachable-toleration-seconds=20"
+      --node-label "topology.kubernetes.io/zone={{ hostvars[inventory_hostname].vars.node_name }}"
+    extra_agent_args: >
+      --node-label "topology.kubernetes.io/zone={{ hostvars[inventory_hostname].vars.node_name }}"

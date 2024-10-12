@@ -1,0 +1,31 @@
+{{ ansible_managed | comment }}
+
+global_defs {
+  router_id LVS_LB
+}
+
+vrrp_script check_vault_health {
+  script "/usr/local/bin/vault-health https://localhost:8200/v1/sys/health"
+  interval 3
+}
+
+vrrp_instance vault-vip {
+  state {{ state }}
+  priority {{ priority }}
+  virtual_router_id 10
+  advert_int 1
+
+  interface eth0
+
+  virtual_ipaddress {
+    {{ vip_vault }}
+  }
+
+  track_interface {
+    eth0
+  }
+
+  track_script {
+    check_vault_health
+  }
+}

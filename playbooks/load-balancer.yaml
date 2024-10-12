@@ -8,12 +8,7 @@
   vars:
     master: load-balancer-1
     instances:
-      # - name: vault
-      #   ip: 10.0.30.10/16
-      #   healthcheck:
-      #     script: "/usr/local/bin/vault-health https://localhost:8200/v1/sys/health"
-      #     interval: 2
-      #   backend: null
+      # ip: 10.0.30.10/16 - Vault
       - name: kubernetes
         ip: 10.0.30.20/16
         healthcheck:
@@ -22,3 +17,13 @@
         backend:
           port: 6443
           hosts: "{{ groups['k3s_server'] }}"
+      - name: proxmox
+        ip: 10.0.30.30/16
+        healthcheck:
+          script: "/usr/local/bin/healthcheck-proxmox XXXX"
+          interval: 2
+        backend:
+          port: 8006
+          hosts:
+            - 10.0.20.31
+            - 10.0.20.32

@@ -9,9 +9,9 @@
 #     - haproxy=2.6.12-1+deb12u1
 #     - keepalived=1:2.2.7-1+b2
 
-# - name: Configure HAProxy
-#   ansible.builtin.include_tasks:
-#     file: ./haproxy.yaml
+- name: Configure HAProxy
+  ansible.builtin.include_tasks:
+    file: ./haproxy.yaml
 
 - name: Configure Keepalived
   ansible.builtin.include_tasks:

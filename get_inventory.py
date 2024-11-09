@@ -8,7 +8,7 @@ from proxmoxer import ProxmoxAPI
 def get_nodes(node_name: str, user: str, token_name: str, token_value: str) -> list:
   pve = ProxmoxAPI(host=node_name, user=f"{user}@pve", token_name=token_name, token_value=token_value)
 
-  cluster_nodes = pve.nodes.get()
+  cluster_nodes = [node for node in pve.nodes.get() if node['status'] == 'online']
   vms = []
 
   for node in cluster_nodes:

@@ -1,0 +1,34 @@
+{{ ansible_managed | comment }}
+
+##    I N S T A N C E :  {{ item.name }}
+## ********************************************
+
+{% if item.healthcheck is not none %}
+vrrp_script healthcheck {
+  script {{ item.healthcheck.script }}
+  interval {{ item.healthcheck.interval }}
+}
+{% endif %}
+
+vrrp_instance {{ item.name }} {
+  state {{ state }}
+  priority {{ priority }}
+  virtual_router_id {{ router_id }}
+  advert_int 1
+
+  interface eth0
+
+  virtual_ipaddress {
+    {{ item.ip }}
+  }
+
+  track_interface {
+    eth0
+  }
+
+{% if item.healthcheck is not none %}
+  track_script {
+    healthcheck
+  }
+{% endif %}
+}

@@ -7,4 +7,23 @@
     - role: load-balancer-setup
   vars:
     master: load-balancer-1
-    keepalived_virtual_ip: 10.0.30.20/16
+    instances:
+      # ip: 10.0.30.10/16 - Vault
+      - name: kubernetes
+        ip: 10.0.30.20/16
+        healthcheck:
+          script: "/usr/local/bin/killall -0 haproxy"
+          interval: 2
+        backend:
+          port: 6443
+          hosts: "{{ groups['k3s_server'] }}"
+      - name: proxmox
+        ip: 10.0.30.30/16
+        healthcheck:
+          script: "/usr/local/bin/healthcheck-proxmox XXXX"
+          interval: 2
+        backend:
+          port: 8006
+          hosts:
+            - 10.0.20.31
+            - 10.0.20.32

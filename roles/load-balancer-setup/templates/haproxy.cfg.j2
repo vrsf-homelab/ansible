@@ -1,3 +1,5 @@
+{{ ansible_managed | comment }}
+
 global
   log /dev/log    local0
   log /dev/log    local1 notice
@@ -33,18 +35,26 @@ defaults
   errorfile 503 /etc/haproxy/errors/503.http
   errorfile 504 /etc/haproxy/errors/504.http
 
-frontend k8s-frontend
-  bind *:6443
+{% for instance in instances %}
+{% if instance.backend is not none %}
+
+##    I N S T A N C E :  {{ instance.name }}
+## ********************************************
+frontend {{ instance.name }}
+  bind *:{{ instance.backend.port }}
   mode tcp
   option tcplog
-  default_backend k8s-backend
+  default_backend {{ instance.name }}
 
-backend k8s-backend
+backend {{ instance.name }}
   mode tcp
   option tcp-check
   balance roundrobin
   default-server inter 10s downinter 5s
-{% for server in groups['k3s_server'] %}
+{% for server in instance.backend.hosts %}
 {% set host = hostvars[server].ansible_host %}
-  server {{ server }} {{ host }}:6443 check
+  server {{ server }} {{ host }}:{{ instance.backend.port }} check
+{% endfor %}
+
+{% endif %}
 {% endfor %}

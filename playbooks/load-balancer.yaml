@@ -7,4 +7,4 @@
     - role: load-balancer-setup
   vars:
     master: load-balancer-1
-    keepalived_virtual_ip: 10.0.30.20/16
+    keepalived_vip: 10.0.30.20/16

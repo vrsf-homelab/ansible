@@ -6,6 +6,7 @@
   vars:
     state: MASTER
     priority: 100
+    virtual_router_id: "{{ keepalived_vip.split('.')[3].split('/')[0] }}"
   ansible.builtin.template:
     src: keepalived.conf.j2
     dest: /etc/keepalived/keepalived.conf
@@ -15,11 +16,13 @@
 
 - name: Generate Keepalived BACKUP(S) configuration
   when:
-    inventory_hostname != master
+    - inventory_hostname != master
+    - load_balancers | length > 1
   notify: Restart Keepalived
   vars:
     state: BACKUP
-    priority: "{{ 100 - groups['load_balancer'].index(inventory_hostname) * 5 }}"
+    priority: "{{ 100 - servers.index(inventory_hostname) * 5 }}"
+    virtual_router_id: "{{ keepalived_vip.split('.')[3].split('/')[0] }}"
   ansible.builtin.template:
     src: keepalived.conf.j2
     dest: /etc/keepalived/keepalived.conf

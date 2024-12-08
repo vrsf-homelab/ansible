@@ -1,7 +1,7 @@
 {{ ansible_managed | comment }}
 
 vrrp_script chk_haproxy {
-  script '/usr/local/bin/killall -0 haproxy'
+  script '/usr/bin/killall -0 haproxy'
   interval 2
 }
 
@@ -10,10 +10,10 @@ vrrp_instance haproxy-vip {
   state {{ state }}
   priority {{ priority }}
 
-  virtual_router_id 20
+  virtual_router_id {{ virtual_router_id }}
 
   virtual_ipaddress {
-    {{ keepalived_virtual_ip }}
+    {{ keepalived_vip }}
   }
 
   track_script {

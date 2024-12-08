@@ -44,7 +44,7 @@ backend k8s-backend
   option tcp-check
   balance roundrobin
   default-server inter 10s downinter 5s
-{% for server in groups['k3s_server'] %}
+{% for server in servers %}
 {% set host = hostvars[server].ansible_host %}
   server {{ server }} {{ host }}:6443 check
 {% endfor %}

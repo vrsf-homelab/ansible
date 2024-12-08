@@ -12,3 +12,4 @@
       - locales-all
       - cryptsetup
       - nfs-common
+      - psmisc

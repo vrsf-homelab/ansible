@@ -38,20 +38,32 @@ def get_nodes(node_name: str, user: str, token_name: str, token_value: str) -> l
 
 
 def define_vars_on_tags(tags) -> (dict[str, str] | dict):
-  if 'k3s_server' in tags:
-    return {
-      'cluster_type': 'k3s',
-      'cluster_role': 'server'
-    }
+  if 'k3s' in tags:
+    for subtag in tags:
+      if 'k3s_' in subtag:
+        parts = subtag.split('_')
 
-  if 'k3s_agent' in tags:
-    return {
-      'cluster_type': 'k3s',
-      'cluster_role': 'agent'
-    }
+        if len(parts) == 3:
+          cluster_type = parts[0]
+          name = parts[1]
+          role = parts[2]
+          match role:
+            case 'cp':
+              cluster_role = 'server'
+            case 'lb':
+              cluster_role = 'load-balancer'
+            case _:
+              cluster_role = 'agent'
+
+          return {
+            'cluster_name': name,
+            'cluster_type': cluster_type,
+            'cluster_role': cluster_role
+          }
 
   if 'vault' in tags:
     return {
+      'cluster_name': 'vault',
       'cluster_type': 'vault',
       'cluster_role': 'member'
     }

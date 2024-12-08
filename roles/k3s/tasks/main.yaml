@@ -6,6 +6,16 @@
       - nfs-common
       - open-iscsi
 
+- name: Load Balancer
+  when:
+    - hostvars[inventory_hostname].vars.cluster_type == "k3s"
+    - hostvars[inventory_hostname].vars.cluster_role == "load-balancer"
+  ansible.builtin.include_role:
+    name: load-balancer-setup
+  vars:
+    servers: "{{ groups['all'] | select('match', '^k3s-.*-control-plane-.*$') | list }}"
+    load_balancers: "{{ groups['all'] | select('match', '^k3s-.*-load-balancer-.*$') | list }}"
+
 - name: Check cluster type and role
   when:
     - hostvars[inventory_hostname].vars.cluster_type == "k3s"

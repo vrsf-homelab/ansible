@@ -74,53 +74,36 @@
       ansible.builtin.pause:
         seconds: 10
 
-    - name: Check whether kubectl is installed on control node
-      ansible.builtin.command: 'kubectl'
-      register: kubectl_installed
-      ignore_errors: true
-      delegate_to: localhost
-      become: false
-      changed_when: false
-
     - name: Apply K3S kubeconfig to control node
-      when: kubectl_installed.rc == 0
       block:
         - name: Copy kubeconfig to control node
           ansible.builtin.fetch:
             src: /etc/rancher/k3s/k3s.yaml
-            dest: "{{ kubeconfig }}"
+            dest: "{{ kubeconfig }}.{{ master }}"
             flat: true
 
         - name: Change server address in kubeconfig on control node
           ansible.builtin.shell: |
-            KUBECONFIG={{ kubeconfig }} kubectl config set-cluster default --server=https://{{ api_endpoint }}:{{ api_port }}
+            KUBECONFIG={{ kubeconfig }}.{{ master }} kubectl config set-cluster default --server=https://{{ api_endpoint }}:{{ api_port }}
+            sed -i '' 's/default/{{ hostvars[inventory_hostname].vars.cluster_name }}/g' {{ kubeconfig }}.{{ master }}
           delegate_to: localhost
           become: false
           register: csa_result
           changed_when:
             - csa_result.rc == 0
 
-        - name: Setup kubeconfig context on control node - {{ cluster_context }}
-          when: kubeconfig != "~/.kube/config"
-          ansible.builtin.replace:
-            path: "{{ kubeconfig }}"
-            regexp: 'name: default'
-            replace: 'name: {{ cluster_context }}'
-          delegate_to: localhost
-          become: false
-
-        - name: Merge with any existing kubeconfig on control node
-          when: kubeconfig != "~/.kube/config"
+        - name: Update context in existing kubectl config on localhost
           ansible.builtin.shell: |
-            TFILE=$(mktemp)
-            KUBECONFIG={{ kubeconfig }} kubectl config set-context {{ cluster_context }} --user={{ cluster_context }} --cluster={{ cluster_context }}
-            KUBECONFIG={{ kubeconfig }} kubectl config view --flatten > ${TFILE}
-            mv ${TFILE} {{ kubeconfig }}
+            cp {{ kubeconfig }} {{ kubeconfig }}.origin
+            export KUBECONFIG={{ kubeconfig }}:{{ kubeconfig }}.{{ master }}
+            kubectl config view --flatten > {{ kubeconfig }}.updated
+            mv {{ kubeconfig }}.updated {{ kubeconfig }}
+            rm {{ kubeconfig }}.{{ master }}
           delegate_to: localhost
           become: false
-          register: mv_result
+          register: updc_result
           changed_when:
-            - mv_result.rc == 0
+            - updc_result.rc == 0
 
 - name: Start other server if any and verify status
   when:

@@ -1,0 +1,11 @@
+server_config_yaml: |
+  tls-san:
+    - k8s-sapphire.vrsf.in
+    - 10.0.30.30
+  disable:
+    - servicelb
+    - traefik
+  cluster-init: true
+master: k3s-sapphire-control-plane-1
+cluster_context: 10.0.30.30
+api_endpoint: 10.0.30.30

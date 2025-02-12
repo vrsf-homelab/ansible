@@ -1,0 +1,13 @@
+---
+consul_version: 1.20.1
+
+# User & Group
+consul_user: consul
+consul_group: consul
+
+# Directories
+consul_home_dir: /etc/consul.d
+consul_data_dir: /opt/consul/data
+
+# Datacenter
+consul_datacenter_name: consul

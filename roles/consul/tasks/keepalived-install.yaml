@@ -1,0 +1,22 @@
+---
+- name: Prepare Keepalived tracking script
+  ansible.builtin.copy:
+    src: files/consul-health.sh
+    dest: /usr/local/bin/consul-health
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Install & configure Keepalived
+  ansible.builtin.include_role:
+    name: keepalived
+  vars:
+    keepalived_servers: "{{ consul_keepalived.servers }}"
+    keepalived_master_server: "{{ consul_keepalived.master }}"
+    keepalived_routers:
+      - name: "{{ consul_keepalived.name }}"
+        id: "{{ consul_keepalived.vr_id }}"
+        ip: "{{ consul_keepalived.vr_ip }}"
+        track_script:
+          script: /usr/local/bin/consul-health
+          interval: 2

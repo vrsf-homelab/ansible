@@ -1,0 +1,33 @@
+---
+- name: Install Consul
+  ansible.builtin.include_tasks: consul-install.yaml
+
+- name: Configure Consul
+  ansible.builtin.include_tasks: consul-configure.yaml
+
+- name: Install & configure load balancer
+  when: consul_keepalived is defined
+  ansible.builtin.include_tasks: keepalived-install.yaml
+
+- name: Load Consul
+  block:
+    - name: Populate service facts
+      ansible.builtin.service_facts:
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+
+    - name: Restart Consul service
+      when: ansible_facts.services['consul.service']['state'] == 'running'
+      ansible.builtin.service:
+        name: consul
+        enabled: true
+        state: restarted
+
+    - name: Start Consul service
+      when: ansible_facts.services['consul.service']['state'] != 'running'
+      ansible.builtin.service:
+        name: consul
+        enabled: true
+        state: started

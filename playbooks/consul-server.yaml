@@ -1,0 +1,16 @@
+---
+- name: Consul cluster
+  hosts: consul
+  become: true
+  gather_facts: true
+  roles:
+    - role: consul
+  vars:
+    consul_version: 1.20.1
+    consul_datacenter_name: vrs-factory
+    consul_keepalived:
+      name: consul
+      vr_id: 11
+      vr_ip: 10.0.30.11
+      servers: "{{ ansible_play_hosts_all }}"
+      master: consul-1

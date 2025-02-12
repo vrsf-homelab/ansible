@@ -1,0 +1,44 @@
+---
+- name: Set Consul data directory permissions
+  ansible.builtin.file:
+    path: "{{ consul_data_dir }}"
+    state: directory
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: "0755"
+
+- name: Prepare service environment file
+  ansible.builtin.template:
+    src: consul.env.j2
+    dest: '{{ consul_home_dir }}/consul.env'
+    owner: 'root'
+    group: 'root'
+    mode: '0600'
+
+- name: Prepare service
+  ansible.builtin.template:
+    src: consul.service.j2
+    dest: /etc/systemd/system/consul.service
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: Prepare configuration
+  block:
+    - name: Create directories
+      ansible.builtin.file:
+        path: "{{ consul_home_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Render config
+      ansible.builtin.template:
+        src: consul.hcl.j2
+        dest: "{{ consul_home_dir }}/consul.hcl"
+        owner: "{{ consul_user }}"
+        group: "{{ consul_group }}"
+        mode: "0644"
+      vars:
+        node_name: "{{ inventory_hostname }}"
+        bind_address: "{{ ansible_default_ipv4.address }}"
+        cluster_servers: "{{ ansible_play_hosts_all | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list | to_json }}"

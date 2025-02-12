@@ -8,6 +8,23 @@
   with_items:
     - keepalived={{ keepalived_version }}
 
+- name: Prepare base configuration
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create 'conf.d/' directory
+  ansible.builtin.file:
+    path: /etc/keepalived/conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+    recurse: true
+
 - name: Generate MASTER configuration
   with_items: "{{ keepalived_routers }}"
   when:
@@ -19,8 +36,8 @@
     state: MASTER
     priority: 120
   ansible.builtin.template:
-    src: keepalived-host.conf.j2
-    dest: /etc/keepalived/keepalived.conf
+    src: keepalived-router.conf.j2
+    dest: /etc/keepalived/conf.d/keepalived-{{ router.name }}.conf
     owner: root
     group: root
     mode: '0644'
@@ -37,8 +54,8 @@
     state: BACKUP
     priority: "{{ 100 - keepalived_servers.index(inventory_hostname) }}"
   ansible.builtin.template:
-    src: keepalived-host.conf.j2
-    dest: /etc/keepalived/keepalived.conf
+    src: keepalived-router.conf.j2
+    dest: /etc/keepalived/conf.d/keepalived-{{ router.name }}.conf
     owner: root
     group: root
     mode: '0644'

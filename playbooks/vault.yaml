@@ -6,9 +6,14 @@
     - role: vault
   vars:
     master: core-1
-    vip_vault: 10.0.30.10/16
     vault_gcp_sealed: true
     dns_map:
       core-1: "n1.vlt.vrsf.in"
       core-2: "n2.vlt.vrsf.in"
       core-3: "n3.vlt.vrsf.in"
+    vault_keepalived:
+      name: vault
+      vr_id: 10
+      vr_ip: 10.0.30.10
+      servers: "{{ ansible_play_hosts_all }}"
+      master: core-1

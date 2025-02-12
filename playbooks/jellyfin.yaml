@@ -1,0 +1,12 @@
+---
+- name: Provisioning Jellyfin settings
+  hosts: jellyfin
+  gather_facts: true
+  become: true
+  roles:
+    - role: jellyfin
+  vars:
+    server_host: 10.0.20.30
+    media_directories:
+      - movies
+      - tv-shows

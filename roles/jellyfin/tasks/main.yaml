@@ -1,0 +1,27 @@
+---
+- name: Mount NAS movies, TVs, etc.
+  block:
+    - name: Create directories for movies and TV shows
+      ansible.builtin.file:
+        path: "/mnt/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop: "{{ media_directories }}"
+
+    - name: Mount directories
+      ansible.posix.mount:
+        src: "{{ server_host }}:/volume1/media/{{ item }}"
+        path: "/mnt/{{ item }}"
+        fstype: nfs
+        opts: defaults
+        state: mounted
+      loop: "{{ media_directories }}"
+
+    - name: Ensure mounts are persistent
+      ansible.posix.mount:
+        src: "{{ server_host }}:/volume1/media/{{ item }}"
+        path: "/mnt/{{ item }}"
+        fstype: nfs
+        opts: defaults
+        state: present
+      loop: "{{ media_directories }}"

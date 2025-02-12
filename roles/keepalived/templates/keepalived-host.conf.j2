@@ -1,0 +1,27 @@
+{{ ansible_managed | comment }}
+# Router: {{ router.name }}
+
+{% if router.track_script is defined %}
+vrrp_script {{ router.name }}-track {
+  script '{{ router.track_script.script }}'
+  interval {{ router.track_script.interval | default(5) }}
+}
+{% endif %}
+
+vrrp_instance {{ router.name }} {
+  interface eth0
+  state {{ state }}
+  priority {{ priority }}
+
+  virtual_router_id {{ router.id }}
+
+  virtual_ipaddress {
+    {{ router.ip }}
+  }
+
+{% if router.track_script is defined %}
+  track_script {
+    {{ router.name }}-track
+  }
+{% endif %}
+}

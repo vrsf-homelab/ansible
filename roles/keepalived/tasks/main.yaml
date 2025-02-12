@@ -1,0 +1,44 @@
+---
+- name: Install Keepalived
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  with_items:
+    - keepalived={{ keepalived_version }}
+
+- name: Generate MASTER configuration
+  with_items: "{{ keepalived_routers }}"
+  when:
+    inventory_hostname == keepalived_master_server
+  notify: Restart Keepalived
+  loop_control:
+    loop_var: router
+  vars:
+    state: MASTER
+    priority: 120
+  ansible.builtin.template:
+    src: keepalived-host.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Generate BACKUP(S) configuration
+  when:
+    - inventory_hostname != keepalived_master_server
+    - keepalived_servers | length > 1
+  notify: Restart Keepalived
+  with_items: "{{ keepalived_routers }}"
+  loop_control:
+    loop_var: router
+  vars:
+    state: BACKUP
+    priority: "{{ 100 - keepalived_servers.index(inventory_hostname) }}"
+  ansible.builtin.template:
+    src: keepalived-host.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: '0644'

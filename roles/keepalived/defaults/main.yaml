@@ -1,0 +1,19 @@
+---
+## General
+keepalived_version: 1:2.2.7-1+b2
+keepalived_home_dir: /etc/keepalived
+
+## List of routers configured in Keepalived.
+keepalived_routers: []
+# - name: my-router
+#   id: 100
+#   ip: 10.0.10.100
+#   track_script:
+#     script: '/usr/bin/killall -0 haproxy'
+#     interval: 2
+
+## List of servers that will be used in Keepalived cluster.
+keepalived_servers: []
+
+## The host of the sever that will be used as a 'MASTER'.
+keepalived_master_server: ''

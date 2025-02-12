@@ -1,0 +1,7 @@
+---
+- name: Add custom APT repositories
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - role: apt-repository

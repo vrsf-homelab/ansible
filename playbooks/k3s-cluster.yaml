@@ -5,9 +5,6 @@
   roles:
     - role: k3s
   vars:
-    # master: k3s-server-1
-    # cluster_context: k8s.vrsf.in
-    # api_endpoint: k8s.vrsf.in
     k3s_version: v1.30.2+k3s2
     extra_server_args: >
       --node-label "topology.kubernetes.io/zone={{ hostvars[inventory_hostname].vars.node_name }}"

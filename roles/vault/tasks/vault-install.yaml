@@ -1,6 +1,7 @@
 ---
 - name: Add HashiCorp APT repository
-  ansible.builtin.include_role: apt-repository
+  ansible.builtin.include_role:
+    name: apt-repository
   vars:
     apt_repository_hashicorp: true
 

@@ -1,8 +1,6 @@
 ---
 - name: Gathering vault status
-  environment:
-    VAULT_ADDR: 'https://{{ hostvars[inventory_hostname].ansible_host }}:8200'
-  ansible.builtin.command: 'vault status -format=json'
+  ansible.builtin.command: 'vault status -tls-skip-verify -format=json'
   register: vault_status_raw
   failed_when: vault_status_raw.rc != 2
   changed_when: false
@@ -15,9 +13,7 @@
   when:
     - vault_status.initialized is false
     - vault_gcp_sealed is false
-  environment:
-    VAULT_ADDR: 'https://{{ hostvars[inventory_hostname].ansible_host }}:8200'
-  ansible.builtin.command: 'vault operator init -key-shares={{ vault_key_shares }} -key-threshold={{ vault_key_threshold }} -format json'
+  ansible.builtin.command: 'vault operator init -tls-skip-verify -key-shares={{ vault_key_shares }} -key-threshold={{ vault_key_threshold }} -format json'
   register: vault_init_raw
   changed_when: false
 
@@ -25,9 +21,7 @@
   when:
     - vault_status.initialized is false
     - vault_gcp_sealed is true
-  environment:
-    VAULT_ADDR: 'https://{{ hostvars[inventory_hostname].ansible_host }}:8200'
-  ansible.builtin.command: 'vault operator init -format json'
+  ansible.builtin.command: 'vault operator init -tls-skip-verify -format json'
   register: vault_init_raw
   changed_when: false
 

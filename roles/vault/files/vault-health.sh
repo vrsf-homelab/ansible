@@ -1,17 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-if [ $# -ne 1 ]; then
-  echo "WARNING: You must provide health check URL"
-  exit 1
+URL=${1:-"https://localhost:8200/v1/sys/health"}
+STATUS_OK=${2:-200}
+
+response=$(curl --insecure --write-out "%{http_code}" --silent --output /dev/null "$URL")
+
+if [ "$response" -eq "$STATUS_OK" ]; then
+  echo "Response OK"
+  exit 0
 else
-  CHECK_URL=$1
-  CMD=$(/usr/bin/curl -k -I ${CHECK_URL} 2>/dev/null | grep "HTTP/2 200" | wc -l)
-
-  if [ ${CMD} -eq 1 ]; then
-    echo "Vault is ONLINE!"
-    exit 0
-  else
-    echo "Vault is OFFLINE!"
-    exit 1
-  fi
+  echo "Response FAILED"
+  exit 1
 fi

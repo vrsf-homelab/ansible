@@ -1,7 +1,7 @@
 ---
 - name: Prepare Vault directories
   block:
-    - name: Create '{{ vault_keys_dir }}' path
+    - name: Create 'keys' directory
       ansible.builtin.file:
         path: '{{ vault_keys_dir }}'
         state: directory
@@ -9,7 +9,7 @@
         group: '{{ vault_group }}'
         mode: '0755'
 
-    - name: Create '{{ vault_home_dir }}' path
+    - name: Create 'home' directory
       ansible.builtin.file:
         path: '{{ vault_home_dir }}'
         state: directory
@@ -17,31 +17,13 @@
         group: '{{ vault_group }}'
         mode: '0755'
 
-    - name: Create '{{ vault_data_dir }}' path
+    - name: Create 'data' directory
       ansible.builtin.file:
         path: '{{ vault_data_dir }}'
         state: directory
         owner: '{{ vault_user }}'
         group: '{{ vault_group }}'
         mode: '0755'
-
-- name: Prepare certificates
-  block:
-    - name: Copy TLS certificate
-      ansible.builtin.copy:
-        src: files/vlt.vrsf.in.crt
-        dest: '{{ vault_tls_cert_file }}'
-        owner: '{{ vault_user }}'
-        group: '{{ vault_group }}'
-        mode: '0600'
-
-    - name: Copy TLS key
-      ansible.builtin.copy:
-        src: files/vlt.vrsf.in.key
-        dest: '{{ vault_tls_key_file }}'
-        owner: '{{ vault_user }}'
-        group: '{{ vault_group }}'
-        mode: '0600'
 
 - name: Prepare Vault environment file
   ansible.builtin.template:

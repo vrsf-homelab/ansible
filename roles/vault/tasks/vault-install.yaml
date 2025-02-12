@@ -1,16 +1,8 @@
 ---
-- name: Add HashiCorp GPG key
-  ansible.builtin.get_url:
-    url: https://apt.releases.hashicorp.com/gpg
-    dest: /usr/share/keyrings/hashicorp-archive-keyring.gpg
-    mode: ugo+rw
-
-- name: Add HashiCorp repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
-    state: present
-    filename: hashicorp
-    update_cache: true
+- name: Add HashiCorp APT repository
+  ansible.builtin.include_role: apt-repository
+  vars:
+    apt_repository_hashicorp: true
 
 - name: Install Vault
   ansible.builtin.apt:

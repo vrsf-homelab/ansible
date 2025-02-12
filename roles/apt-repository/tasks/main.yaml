@@ -1,0 +1,4 @@
+---
+- name: Install HashiCorp APT repository
+  when: apt_repository_hashicorp
+  ansible.builtin.include_tasks: hashicorp.yaml
